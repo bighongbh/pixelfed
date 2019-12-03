@@ -71,6 +71,8 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
     Route::redirect('discover/personal', '/discover');
     Route::get('discover', 'DiscoverController@home')->name('discover');
     Route::get('discover/loops', 'DiscoverController@showLoops');
+    Route::get('discover/profiles', 'DiscoverController@profilesDirectory')->name('discover.profiles');
+    
     
     Route::group(['prefix' => 'api'], function () {
         Route::get('search', 'SearchController@searchAPI');
@@ -117,6 +119,7 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
                 Route::get('config', 'ApiController@siteConfiguration');
                 Route::get('discover', 'InternalApiController@discover');
                 Route::get('discover/posts', 'InternalApiController@discoverPosts');
+                Route::get('discover/profiles', 'DiscoverController@profilesDirectoryApi');
                 Route::get('profile/{username}/status/{postid}', 'PublicApiController@status');
                 Route::get('comments/{username}/status/{postId}', 'PublicApiController@statusComments');
                 Route::get('likes/profile/{username}/status/{id}', 'PublicApiController@statusLikes');
@@ -149,7 +152,7 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
             Route::get('exp/rec', 'ApiController@userRecommendations');
             Route::post('discover/tag/subscribe', 'HashtagFollowController@store')->middleware('throttle:maxHashtagFollowsPerHour,60')->middleware('throttle:maxHashtagFollowsPerDay,1440');;
             Route::get('discover/tag/list', 'HashtagFollowController@getTags');
-            Route::get('profile/sponsor/{id}', 'ProfileSponsorController@get');
+            // Route::get('profile/sponsor/{id}', 'ProfileSponsorController@get');
             Route::get('bookmarks', 'InternalApiController@bookmarks');
             Route::get('collection/items/{id}', 'CollectionController@getItems');
             Route::post('collection/item', 'CollectionController@storeId');
@@ -198,7 +201,7 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
         Route::get('auth/checkpoint', 'AccountController@twoFactorCheckpoint');
         Route::post('auth/checkpoint', 'AccountController@twoFactorVerify');
 
-        Route::get('media/preview/{profileId}/{mediaId}', 'ApiController@showTempMedia')->name('temp-media');
+        Route::get('media/preview/{profileId}/{mediaId}/{timestamp}', 'ApiController@showTempMedia')->name('temp-media');
 
         Route::get('results', 'SearchController@results');
         Route::post('visibility', 'StatusController@toggleVisibility');
@@ -318,8 +321,8 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
         Route::get('invites/create', 'UserInviteController@create')->name('settings.invites.create');
         Route::post('invites/create', 'UserInviteController@store');
         Route::get('invites', 'UserInviteController@show')->name('settings.invites');
-        Route::get('sponsor', 'SettingsController@sponsor')->name('settings.sponsor');
-        Route::post('sponsor', 'SettingsController@sponsorStore');
+        // Route::get('sponsor', 'SettingsController@sponsor')->name('settings.sponsor');
+        // Route::post('sponsor', 'SettingsController@sponsorStore');
     });
 
     Route::group(['prefix' => 'site'], function () {
@@ -373,6 +376,7 @@ Route::domain(config('pixelfed.domain.app'))->middleware(['validemail', 'twofact
 
     Route::get('c/{collection}', 'CollectionController@show');
     Route::get('p/{username}/{id}/c', 'CommentController@showAll');
+    Route::get('p/{username}/{id}/embed', 'StatusController@showEmbed');
     Route::get('p/{username}/{id}/edit', 'StatusController@edit');
     Route::post('p/{username}/{id}/edit', 'StatusController@editStore');
     Route::get('p/{username}/{id}.json', 'StatusController@showObject');
